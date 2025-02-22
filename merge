@@ -1,0 +1,138 @@
+<xml xmlns="http://www.w3.org/1999/xhtml" collection="false">
+  <block type="trade" id="trade" x="335" y="-87">
+    <statement name="SUBMARKET">
+      <block type="variables_set" id="Condition">
+        <field name="VAR">Trade Condition</field>
+        <value name="VALUE">
+          <block type="text" id="ConditionText">
+            <field name="TEXT">None</field>
+          </block>
+        </value>
+        <next>
+          <block type="variables_set" id="MaxLoss">
+            <field name="VAR">Max Acceptable Loss</field>
+            <value name="VALUE">
+              <block type="math_number" id="MaxLossValue">
+                <field name="NUM">10000</field>
+              </block>
+            </value>
+            <next>
+              <block type="variables_set" id="ExpectedProfit">
+                <field name="VAR">Expected Profit</field>
+                <value name="VALUE">
+                  <block type="math_number" id="ProfitValue">
+                    <field name="NUM">10000</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="indicators" id="Indicators">
+                    <field name="SUPPORT_LEVEL">support</field>
+                    <field name="RESISTANCE_LEVEL">resistance</field>
+                    <field name="SHORT_MA">5</field>
+                    <field name="LONG_MA">20</field>
+                    <field name="RSI_PERIOD">14</field>
+                    <field name="BOLLINGER_PERIOD">20</field>
+                    <field name="BOLLINGER_DEVIATION">2</field>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+
+  <block type="before_purchase" id="strategy" x="342" y="268">
+    <statement name="BEFOREPURCHASE_STACK">
+      <block type="controls_if" id="ConditionsLogic">
+        <mutation else="1"></mutation>
+        <value name="IF0">
+          <block type="logic_operation" id="BuyConditions">
+            <field name="OP">OR</field>
+            <value name="A">
+              <block type="logic_compare" id="SupportBounce">
+                <field name="OP">EQ</field>
+                <value name="A">
+                  <block type="variables_get" id="PriceCheck">
+                    <field name="VAR">Price</field>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="variables_get" id="SupportLevel">
+                    <field name="VAR">support</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <value name="B">
+              <block type="logic_compare" id="RSIOversold">
+                <field name="OP">LT</field>
+                <value name="A">
+                  <block type="variables_get" id="RSIValue">
+                    <field name="VAR">RSI</field>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="math_number" id="RSILimit">
+                    <field name="NUM">30</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="DO0">
+          <block type="purchase" id="BuyOrder">
+            <field name="PURCHASE_LIST">CALL</field>
+          </block>
+        </statement>
+        <statement name="ELSE">
+          <block type="controls_if" id="SellConditions">
+            <mutation else="1"></mutation>
+            <value name="IF0">
+              <block type="logic_operation" id="SellLogic">
+                <field name="OP">OR</field>
+                <value name="A">
+                  <block type="logic_compare" id="ResistanceDrop">
+                    <field name="OP">EQ</field>
+                    <value name="A">
+                      <block type="variables_get" id="PriceCheck">
+                        <field name="VAR">Price</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="variables_get" id="ResistanceLevel">
+                        <field name="VAR">resistance</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="logic_compare" id="RSIOverbought">
+                    <field name="OP">GT</field>
+                    <value name="A">
+                      <block type="variables_get" id="RSIValue">
+                        <field name="VAR">RSI</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="math_number" id="RSILimit">
+                        <field name="NUM">70</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="purchase" id="SellOrder">
+                <field name="PURCHASE_LIST">PUT</field>
+              </block>
+            </statement>
+          </block>
+        </statement>
+      </block>
+    </statement>
+  </block>
+</xml>
